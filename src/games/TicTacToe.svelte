@@ -1,4 +1,5 @@
 <script lang="ts">
+    import GameTitle from "../components/GameTitle.svelte";
     import ResetGameButton from "../components/ResetGameButton.svelte";
     let board: Array<number>;
     let gameState: number;
@@ -107,6 +108,8 @@
 
     resetGame();
 </script>
+
+<GameTitle name={'Tic Tac Toe'}/>
 
 <div class="status"
      class:player1={gameState === GameState.GameOverPlayer1Wins}
