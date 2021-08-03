@@ -23,7 +23,8 @@
     let swapOut: Array<number> = [];
     let swapIn: Array<number> = [];
     let validTargetCells: Array<number> = [];
-    let swapping = false;
+    let allowClick = true;
+    let animateExplode: Array<number> = [];
 
     // Build 4 arrays, to track up, down, left and right boundaries.
     // For example, if a cell is in the first or second column,
@@ -67,7 +68,7 @@
         swapTarget = null;
 
         // Block mouse clicks until animation is done
-        swapping = true;
+        allowClick = false;
 
         // Get values from board that we wish to swap
         const sourceValue = board[sourceIndex];
@@ -86,14 +87,13 @@
         setTimeout(() => {
             swapInOut = [];
             processMatches();
-            swapping = false;
         }, swapTime);
     }
 
     const handleCellClick = (i) => {
 
         // In the middle of a swap animation, do nothing
-        if (swapping) {
+        if ( ! allowClick) {
             return;
         }
 
@@ -184,7 +184,7 @@
         validTargetCells = [];
         swapIn = [];
         swapOut = [];
-        swapping = false;
+        allowClick = true;
         gameState = GameState.Waiting;
         board = Array(gridSize * gridSize);
 
@@ -194,9 +194,10 @@
         }
         score = 0;
 
-        board[0] = 1;
+        // board[0] = 1;
         board[5] = 1;
         board[10] = 1;
+        board[15] = 1;
         // board[17] = 2;
         // board[18] = 2;
         // board[19] = 2;
@@ -210,21 +211,70 @@
         let matches: Array<number>;
 
         while ((matches = checkMatches()).length > 0) {
-            // Clear matched cells
+            animateExplode = [...animateExplode, ...matches];
+
             matches.forEach(cell => {
                 board[cell] = null;
                 score++;
             })
-
-            // Fill empty cells
-            fillEmptyCells();
         }
+
+        setTimeout(() => {
+            animateExplode = [];
+
+            // Push all floating cells down
+            // TODO implement
+            // applyCellGravity(board, gridSize);
+
+            allowClick = true;
+        }, 10000);
     }
 
-    const fillEmptyCells = () => {
-        // TODO implement
-    }
+    const applyCellGravity = (board: Array<number>, gridSize: number): void => {
+        let i;
+        let inf = 0;
 
+        /**
+         * Loops through the board until all cells have a value.
+         *
+         * Each while loop only moves 1 cell down at a time.
+         * For example if a 3-cell vertical match has been removed,
+         * it will take 3 loops to move a value down to the most
+         * bottom empty cell.
+         */
+        while (inf < 200 && board.filter(v => v === null).length > 0) {
+
+            // TODO could loop just on the above filter
+            for (i = board.length - 1; i >= 0; i--) {
+
+                console.log('applyCellGravity: checking cell ' + i);
+
+                // Cell has a jewel, so continue to next cell
+                if (board[i] !== null) {
+                    console.log('applyCellGravity: cell ' + i + ' is not empty, skipping');
+                    continue;
+                }
+
+                // Cell is top row, so generate a new value, then break for loop
+                if (i < gridSize) {
+                    console.log('applyCellGravity: cell ' + i + ' is top row, generating');
+                    board[i] = generateJewel();
+                    break;
+                }
+
+                // Cell above has a jewel, so move it down
+                // Then break for loop to restart
+                if (board[i - gridSize] !== null) {
+                    console.log('applyCellGravity: cell above cell ' + i + ' has jewel, moving down');
+                    board[i] = board[i - gridSize];
+                    board[i - gridSize] = null;
+                    break;
+                }
+            }
+            inf++;
+        }
+
+    }
 
     /**
      * Iterates through board from bottom-right to top-left,
@@ -282,6 +332,7 @@
              class:jewelGrey={v === Jewels.Grey}
              class:swapSource={k === swapSource}
              class:swapInOut={swapInOut.indexOf(k) > -1}
+             class:animateExplode={animateExplode.indexOf(k) > -1}
              class:validTargetCells={validTargetCells.indexOf(k) > -1}
              on:click={() => handleCellClick(k)}
         >
@@ -368,6 +419,10 @@
             transform: scale(1);
             opacity: 1;
         }
+    }
+    .animateExplode {
+        /* TODO implement */
+        background-color: #000 !important;
     }
     .swapInOut {
         animation-name: swapInOut;
