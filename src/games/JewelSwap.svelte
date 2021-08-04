@@ -11,6 +11,9 @@
         checkMatchUp,
         checkMatchLeft,
     } from "./jewelSwap/utils";
+    import ExplosionGenerator from "../components/effects/ExplosionGenerator.svelte";
+
+    import {animateCellsFalling} from "./jewelSwap/stores";
 
     let board: Array<number>
     let gameState: GameState;
@@ -137,7 +140,7 @@
     /**
      * Sets the validTargetCell class on relevant cells.
      */
-    const setValidTargetCells = (selectedCell: number|null): void => {
+    const setValidTargetCells = (selectedCell: number | null): void => {
 
         let i: number;
         let constraints: Array<number>;
@@ -223,14 +226,17 @@
             animateExplode = [];
 
             // Push all floating cells down
-            // TODO implement
-            // applyCellGravity(board, gridSize);
+            board = fillEmptyCells(board, gridSize, animateCellsFalling);
 
             allowClick = true;
-        }, 10000);
+        }, 1000);
     }
 
-    const applyCellGravity = (board: Array<number>, gridSize: number): void => {
+    const fillEmptyCells = (board: Array<number>,
+                            gridSize: number,
+                            animateCellsFalling // TODO type
+    ): Array<number> => {
+
         let i;
         let inf = 0;
 
@@ -259,6 +265,7 @@
                 if (i < gridSize) {
                     console.log('applyCellGravity: cell ' + i + ' is top row, generating');
                     board[i] = generateJewel();
+                    animateCellsFalling.update(cur => [...cur, i]);
                     break;
                 }
 
@@ -268,11 +275,18 @@
                     console.log('applyCellGravity: cell above cell ' + i + ' has jewel, moving down');
                     board[i] = board[i - gridSize];
                     board[i - gridSize] = null;
+                    animateCellsFalling.update(cur => [...cur, i]);
                     break;
                 }
             }
             inf++;
         }
+
+        setTimeout(() => {
+            animateCellsFalling.set([]);
+        }, 1000);
+
+        return board;
 
     }
 
@@ -333,10 +347,14 @@
              class:swapSource={k === swapSource}
              class:swapInOut={swapInOut.indexOf(k) > -1}
              class:animateExplode={animateExplode.indexOf(k) > -1}
+             class:animateCellsFalling={$animateCellsFalling.indexOf(k) > -1}
              class:validTargetCells={validTargetCells.indexOf(k) > -1}
              on:click={() => handleCellClick(k)}
         >
-            {k}
+            {#if animateExplode.indexOf(k) > -1}
+                <ExplosionGenerator />
+            {/if}
+            {k}:{v}
         </div>
     {/each}
 </div>
@@ -420,9 +438,37 @@
             opacity: 1;
         }
     }
+
+    @keyframes animateCellsFalling {
+        from {
+            transform: translateY(-50px);
+        }
+        to {
+            transform: translateY(0);
+        }
+    }
+    .animateCellsFalling {
+        animation-name: animateCellsFalling;
+        animation-iteration-count: 1;
+        animation-duration: 500ms;
+        animation-timing-function: ease-in-out;
+    }
+
+    @keyframes explode {
+        from {
+            opacity: 1;
+        }
+        to {
+            opacity: 0;
+        }
+    }
     .animateExplode {
         /* TODO implement */
-        background-color: #000 !important;
+        animation-name: explode;
+        animation-iteration-count: 1;
+        animation-duration: 500ms;
+        opacity: 0;
+        /*background-color: #000 !important;*/
     }
     .swapInOut {
         animation-name: swapInOut;
@@ -445,6 +491,12 @@
         animation-duration: 500ms;
         animation-timing-function: ease-in-out;
         /*filter:brightness(150%);*/
+    }
+
+
+    .jewelRed, .jewelGreen, .jewelBlue, .jewelOrange,
+    .jewelGold, .jewelSilver, .jewelGrey {
+
     }
     .jewelRed {
         /*background: #ED213A;*/
