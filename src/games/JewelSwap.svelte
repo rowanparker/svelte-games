@@ -5,15 +5,14 @@
     import {getRandomIntInclusive} from "../utils";
     import {
         createUpBoundForMatches,
-        createDownBoundForMatches,
         createLeftBoundForMatches,
-        createRightBoundForMatches,
         checkMatchUp,
         checkMatchLeft,
     } from "./jewelSwap/utils";
     import ExplosionGenerator from "../components/effects/ExplosionGenerator.svelte";
 
     import {animateCellsFalling} from "./jewelSwap/stores";
+    import {providerMatchAfterFill} from "./jewelSwap/testProviders";
 
     let board: Array<number>
     let gameState: GameState;
@@ -34,9 +33,7 @@
     // there is no point checking for a match to the left, as there
     // will not be sufficient cells to make 3 in a row.
     let ignoreUpCheck: Array<number> = createUpBoundForMatches(gridSize);
-    let ignoreDownCheck: Array<number> = createDownBoundForMatches(gridSize);
     let ignoreLeftCheck: Array<number> = createLeftBoundForMatches(gridSize);
-    let ignoreRightCheck: Array<number> = createRightBoundForMatches(gridSize);
 
     const swapTime: number = 300;
 
@@ -197,17 +194,10 @@
         }
         score = 0;
 
-        // board[0] = 1;
-        board[5] = 1;
-        board[10] = 1;
-        board[15] = 1;
-        // board[17] = 2;
-        // board[18] = 2;
-        // board[19] = 2;
+        // TODO Separate testing code
+        board = providerMatchAfterFill();
 
         processMatches();
-
-
     }
 
     const processMatches = () => {
@@ -228,8 +218,23 @@
             // Push all floating cells down
             board = fillEmptyCells(board, gridSize, animateCellsFalling);
 
+            /**
+             * If filling in the empty cells has created new matches then call the method again.
+             *
+             * Wait for a small delay to allow the cellsFalling animation to finish playing.
+             *
+             * Return immediately, so that we don't allow clicks.
+             **/
+            if (checkMatches().length > 0) {
+                setTimeout(processMatches, 350);
+                return;
+            }
+
+            /**
+             * All matches should be cleared. Allow user interaction again.
+             **/
             allowClick = true;
-        }, 1000);
+        }, 450);
     }
 
     const fillEmptyCells = (board: Array<number>,
@@ -450,7 +455,7 @@
     .animateCellsFalling {
         animation-name: animateCellsFalling;
         animation-iteration-count: 1;
-        animation-duration: 500ms;
+        animation-duration: 250ms;
         animation-timing-function: ease-in-out;
     }
 
@@ -463,12 +468,10 @@
         }
     }
     .animateExplode {
-        /* TODO implement */
         animation-name: explode;
         animation-iteration-count: 1;
         animation-duration: 500ms;
         opacity: 0;
-        /*background-color: #000 !important;*/
     }
     .swapInOut {
         animation-name: swapInOut;
@@ -476,21 +479,17 @@
         animation-duration: var(--swap-time);
     }
     .swapSource {
-        /*border: 4px solid #5e503a;*/
         animation-name: cellPulse;
         animation-iteration-count: infinite;
         animation-duration: 500ms;
         animation-timing-function: ease-in-out;
-        /*filter: saturate(20%);*/
     }
     .validTargetCells {
         border: 4px solid #5e503a;
-        /*border: 4px solid #a59882;*/
         animation-name: cellPulse;
         animation-iteration-count: infinite;
         animation-duration: 500ms;
         animation-timing-function: ease-in-out;
-        /*filter:brightness(150%);*/
     }
 
 
@@ -499,8 +498,6 @@
 
     }
     .jewelRed {
-        /*background: #ED213A;*/
-        /*background: linear-gradient(to top, #93291E, #ED213A);*/
         background: #FFA089;
         background: linear-gradient(to top, #FFA89D, #FFA089);
 

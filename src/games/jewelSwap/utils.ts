@@ -11,6 +11,10 @@ export const createLeftBoundForMatches = (gridSize: number): Array<number> => {
     return bounds;
 }
 
+/**
+ * @deprecated No longer required, all match searches move left to right, bottom to top
+ * @param gridSize
+ */
 export const createRightBoundForMatches = (gridSize: number): Array<number> => {
     let column, row: number;
     let bounds = [];
@@ -35,6 +39,10 @@ export const createUpBoundForMatches = (gridSize: number): Array<number> => {
     return bounds;
 }
 
+/**
+ * @deprecated No longer required, all match searches move left to right, bottom to top
+ * @param gridSize
+ */
 export const createDownBoundForMatches = (gridSize: number): Array<number> => {
     let i: number;
     let bounds = [];
