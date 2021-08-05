@@ -1,7 +1,7 @@
 <script lang="ts">
     import {fly} from "svelte/transition";
     import GameTitle from "../components/GameTitle.svelte";
-    import ResetGameButton from "../components/ResetGameButton.svelte";
+    import BigGameButton from "../components/BigGameButton.svelte";
     import {getRandomIntInclusive} from "../utils";
     import {
         createUpBoundForMatches,
@@ -372,7 +372,7 @@
     Score: {score}
 </div>
 
-<ResetGameButton on:resetGame={resetGame} />
+<BigGameButton on:click={resetGame} text="Reset Game" />
 
 <style>
     .gameOver {

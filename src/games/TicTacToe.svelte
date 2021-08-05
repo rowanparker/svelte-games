@@ -1,6 +1,6 @@
 <script lang="ts">
     import GameTitle from "../components/GameTitle.svelte";
-    import ResetGameButton from "../components/ResetGameButton.svelte";
+    import BigGameButton from "../components/BigGameButton.svelte";
     let board: Array<number>;
     let gameState: number;
 
@@ -131,7 +131,7 @@
     {/each}
 </div>
 
-<ResetGameButton on:resetGame={resetGame} />
+<BigGameButton on:click={resetGame} text="Reset Game" />
 
 <style>
     .status, .board {

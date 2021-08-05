@@ -1,10 +1,11 @@
 <script lang="ts">
     import {createEventDispatcher} from "svelte";
     const dispatch = createEventDispatcher();
+    export let text: string;
 </script>
 
 <div class="reset">
-    <button type="button" on:click={() => dispatch('resetGame')}>Reset Game</button>
+    <button type="button" on:click={() => dispatch('click')}>{text}</button>
 </div>
 
 <style>

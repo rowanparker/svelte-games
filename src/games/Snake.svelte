@@ -1,7 +1,7 @@
 <script lang="ts">
     import {onDestroy} from "svelte";
     import {fly} from "svelte/transition";
-    import ResetGameButton from "../components/ResetGameButton.svelte";
+    import BigGameButton from "../components/BigGameButton.svelte";
     import GameTitle from "../components/GameTitle.svelte";
 
     let board: Array<number> = [];
@@ -233,7 +233,7 @@
     Score: {score}
 </div>
 
-<ResetGameButton on:resetGame={resetGame} />
+<BigGameButton on:click={resetGame} text="Reset Game" />
 
 <style>
 
