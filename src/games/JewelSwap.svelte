@@ -12,8 +12,8 @@
     import ExplosionGenerator from "../components/effects/ExplosionGenerator.svelte";
 
     import {animateCellsFalling} from "./jewelSwap/stores";
-    import {providerMatchAfterFill} from "./jewelSwap/testProviders";
 
+    let movesRemaining: number;
     let board: Array<number>
     let gameState: GameState;
     const gridSize: number = 5;
@@ -49,6 +49,7 @@
 
     enum GameState {
         Waiting,
+        Playing,
         GameOver
     }
 
@@ -77,6 +78,8 @@
         // Start transition
         swapInOut = [sourceIndex, targetIndex];
 
+        (new Audio('assets/audio/move.mp3')).play();
+
         // Half way through animation (while opacity is zero), swap values
         setTimeout(() => {
             board[targetIndex] = sourceValue;
@@ -97,6 +100,8 @@
             return;
         }
 
+        (new Audio('assets/audio/select.mp3')).play();
+
         // This cell is already selected as the source, so de-select it.
         if (swapSource === i) {
             swapSource = null;
@@ -115,7 +120,7 @@
         // but it's not in the valid targets
         // so make it the source, but to make
         // animations consistent, remove valid targets
-        //then set swap after a small delay
+        // then set swap after a small delay
         if (validTargetCells.indexOf(i) < 0) {
             validTargetCells = [];
             setTimeout(() => {
@@ -127,7 +132,12 @@
         }
 
         swapTarget = i;
+        movesRemaining--;
         playCellSwap();
+
+        if (movesRemaining < 1) {
+            gameState = GameState.GameOver;
+        }
     }
 
     const generateJewel = () => {
@@ -179,25 +189,30 @@
         }
     }
 
-    const resetGame = () => {
+    const startGame = ():void => {
+        gameState = GameState.Playing;
+        processMatches();
+    }
+
+    const resetGame = (init: boolean = false) => {
+        movesRemaining = 25;
         swapSource = swapTarget = null;
         validTargetCells = [];
         swapIn = [];
         swapOut = [];
-        allowClick = true;
+        allowClick = false;
         gameState = GameState.Waiting;
         board = Array(gridSize * gridSize);
 
         for (let i = 0; i < board.length; i++) {
-
             board[i] = generateJewel();
         }
         score = 0;
 
-        // TODO Separate testing code
-        board = providerMatchAfterFill();
-
-        processMatches();
+        if ( ! init) {
+            gameState = GameState.Playing;
+            allowClick = false;
+        }
     }
 
     const processMatches = () => {
@@ -209,7 +224,9 @@
             matches.forEach(cell => {
                 board[cell] = null;
                 score++;
-            })
+            });
+
+            (new Audio('assets/audio/coin.mp3')).play();
         }
 
         setTimeout(() => {
@@ -258,17 +275,13 @@
             // TODO could loop just on the above filter
             for (i = board.length - 1; i >= 0; i--) {
 
-                console.log('applyCellGravity: checking cell ' + i);
-
                 // Cell has a jewel, so continue to next cell
                 if (board[i] !== null) {
-                    console.log('applyCellGravity: cell ' + i + ' is not empty, skipping');
                     continue;
                 }
 
                 // Cell is top row, so generate a new value, then break for loop
                 if (i < gridSize) {
-                    console.log('applyCellGravity: cell ' + i + ' is top row, generating');
                     board[i] = generateJewel();
                     animateCellsFalling.update(cur => [...cur, i]);
                     break;
@@ -277,7 +290,6 @@
                 // Cell above has a jewel, so move it down
                 // Then break for loop to restart
                 if (board[i - gridSize] !== null) {
-                    console.log('applyCellGravity: cell above cell ' + i + ' has jewel, moving down');
                     board[i] = board[i - gridSize];
                     board[i - gridSize] = null;
                     animateCellsFalling.update(cur => [...cur, i]);
@@ -329,7 +341,7 @@
         return [];
     }
 
-    resetGame();
+    resetGame(true);
 </script>
 
 <GameTitle name={'Jewel Swap'}/>
@@ -359,7 +371,6 @@
             {#if animateExplode.indexOf(k) > -1}
                 <ExplosionGenerator />
             {/if}
-            {k}:{v}
         </div>
     {/each}
 </div>
@@ -372,7 +383,15 @@
     Score: {score}
 </div>
 
-<BigGameButton on:click={resetGame} text="Reset Game" />
+<div class="moveRemaining">
+    Moves Left: {movesRemaining}
+</div>
+
+{#if gameState === GameState.Waiting}
+    <BigGameButton on:click={startGame} text="Start Game" pulse={true} />
+{:else}
+    <BigGameButton on:click={resetGame} text="Reset Game" />
+{/if}
 
 <style>
     .gameOver {
@@ -385,6 +404,14 @@
         text-align: center;
     }
 
+    .moveRemaining {
+        font-family: 'Bangers', sans-serif;
+        font-size: 30px;
+        color: #4d6080;
+        width: 300px;
+        margin: 0 auto;
+        text-align: center;
+    }
     .score {
         font-family: 'Bangers', sans-serif;
         font-size: 40px;
