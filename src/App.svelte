@@ -1,9 +1,10 @@
 <script lang="ts">
     import Navbar from "./components/Navbar.svelte";
     import TicTacToe from "./games/TicTacToe.svelte";
-    import {activeGame,appName} from "./stores/navbar";
     import Snake from "./games/Snake.svelte";
+    import JewelSwap from "./games/JewelSwap.svelte";
     import {onMount} from "svelte";
+    import {activeGame, appName} from "./stores/navbar";
 
     export let title;
 
@@ -23,14 +24,33 @@
     <Snake />
 {/if}
 
+{#if $activeGame === 'jewelSwap'}
+    <JewelSwap />
+{/if}
+
 {#if $activeGame === null}
     <div class="menu">
+        <div class="game ticTacToe active"
+             on:click={() => $activeGame = 'ticTacToe'}
+        >
+            <div class="info">
+                <div class="title">Tic Tac Toe</div>
+            </div>
+            <div class="img"><img src="assets/img/ticTacToe-100x50.gif" alt="Tic Tac Toe" /></div>
+        </div>
+        <div class="game jewelSwap active"
+             on:click={() => $activeGame = 'jewelSwap'}
+        >
+            <div class="info">
+                <div class="title">Jewel Swap</div>
+            </div>
+            <div class="img"><img src="assets/img/jewelSwap-100x50.gif" alt="Snake" /></div>
+        </div>
         <div class="game snake active"
              on:click={() => $activeGame = 'snake'}
         >
             <div class="info">
                 <div class="title">Snake</div>
-                <div class="subTitle">To kill time</div>
             </div>
             <div class="img"><img src="assets/img/snake-100x50.gif" alt="Snake" /></div>
         </div>
@@ -80,17 +100,16 @@
     .snake .img {
         background-color: #8fac9d;
     }
-    .boiRacer .img {
-        background-color: #c75146;
+    .img img {
+        border-radius: 10px;
     }
     .img {
         border-radius: 10px;
         border: 2px solid #fff;
-        padding: 5px;
+        padding: 0;
         display: flex;
     }
     img {
         width: 100px;
     }
 </style>
-

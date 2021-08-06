@@ -15,6 +15,8 @@
                 <div class="dropdown"
                 >
                     <div class="item" on:click={() => $activeGame = null}>Home</div>
+                    <div class="item" on:click={() => $activeGame = 'ticTacToe'}>Tic Tac Toe</div>
+                    <div class="item" on:click={() => $activeGame = 'jewelSwap'}>Jewel Swap</div>
                     <div class="item" on:click={() => $activeGame = 'snake'}>Snake</div>
                 </div>
             {/if}
