@@ -3,7 +3,7 @@ A collection of games written in [Svelte](https://svelte.dev) with [TypeScript](
 Development environment handled by [Docker](https://docker.com)
 
 All effects created using CSS and JS, no canvas.
-
+It serves as an implementation reference for myself for various CSS and JS technologies.
 
 #### Setup
 
