@@ -15,6 +15,7 @@
                 <div class="dropdown"
                 >
                     <div class="item" on:click={() => $activeGame = null}>Home</div>
+                    <div class="item" on:click={() => $activeGame = 'puppyChase'}>Puppy Chase</div>
                     <div class="item" on:click={() => $activeGame = 'ticTacToe'}>Tic Tac Toe</div>
                     <div class="item" on:click={() => $activeGame = 'jewelSwap'}>Jewel Swap</div>
                     <div class="item" on:click={() => $activeGame = 'snake'}>Snake</div>
@@ -58,6 +59,8 @@
         border-top: 1px solid #cec4b3;
         border-bottom: 1px solid #cec4b3;
         display: flex;
+        flex-direction: column;
+        z-index: 1;
     }
     .dropdown .item {
         padding: 1rem;

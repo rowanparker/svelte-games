@@ -3,6 +3,7 @@
     import TicTacToe from "./games/TicTacToe.svelte";
     import Snake from "./games/Snake.svelte";
     import JewelSwap from "./games/JewelSwap.svelte";
+    import PuppyChase from "./games/PuppyChase.svelte";
     import {onMount} from "svelte";
     import {activeGame, appName} from "./stores/navbar";
 
@@ -15,6 +16,10 @@
 </script>
 
 <Navbar />
+
+{#if $activeGame === 'puppyChase'}
+    <PuppyChase />
+{/if}
 
 {#if $activeGame === 'ticTacToe'}
     <TicTacToe />
@@ -30,6 +35,14 @@
 
 {#if $activeGame === null}
     <div class="menu">
+        <div class="game puppyChase active"
+             on:click={() => $activeGame = 'puppyChase'}
+        >
+            <div class="info">
+                <div class="title">Puppy Chase</div>
+            </div>
+            <div class="img"><img src="assets/img/puppyChase-100x50.gif" alt="Puppy Chase" /></div>
+        </div>
         <div class="game ticTacToe active"
              on:click={() => $activeGame = 'ticTacToe'}
         >
